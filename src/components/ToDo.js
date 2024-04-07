@@ -1,14 +1,15 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import bgImg from "./IMG.jpg";
-
+import bgImg from "./IMG.jpg"
 function ToDo() {
     const [usertask, setUserTask] = useState("");
     const [dueDate, setDueDate] = useState("");
     const [tasks, setTasks] = useState([]);
+    const [editingTaskId, setEditingTaskId] = useState(null);
+    const [editedTitle, setEditedTitle] = useState("");
 
     const addTask = () => {
-        axios.post("https://iidt-basic-todofullstack.onrender.com/addTask", { title: usertask, dueDate: dueDate,status: false })
+        axios.post("http://localhost:3001/addTask", { title: usertask, dueDate: dueDate, status: false })
             .then((res) => {
                 console.log(res.data);
                 fetchTasks();
@@ -18,7 +19,7 @@ function ToDo() {
     }
 
     const fetchTasks = () => {
-        axios.get("https://iidt-basic-todofullstack.onrender.com/")
+        axios.get("http://localhost:3001/")
             .then((res) => {
                 console.log(res.data);
                 setTasks(res.data);
@@ -29,7 +30,7 @@ function ToDo() {
     }
 
     const deleteTask = (taskId) => {
-        axios.delete(`https://iidt-basic-todofullstack.onrender.com/deleteTask/${taskId}`)
+        axios.delete(`http://localhost:3001/deleteTask/${taskId}`)
             .then((res) => {
                 console.log(res.data);
                 fetchTasks();
@@ -41,13 +42,31 @@ function ToDo() {
 
     const toggleTaskStatus = (taskId, currentStatus) => {
         const newStatus = !currentStatus; // Toggle the status
-        axios.put(`https://iidt-basic-todofullstack.onrender.com/updateTaskStatus/${taskId}`, { status: newStatus })
+        axios.put(`http://localhost:3001/updateTaskStatus/${taskId}`, { status: newStatus })
             .then((res) => {
                 console.log(res.data);
                 fetchTasks();
             })
             .catch((error) => {
                 console.error("Error updating task status:", error);
+            });
+    }
+
+    const handleEditTask = (taskId, currentTitle) => {
+        setEditingTaskId(taskId);
+        setEditedTitle(currentTitle);
+    }
+
+    const saveEditedTitle = () => {
+        axios.put(`http://localhost:3001/updateTaskTitle/${editingTaskId}`, { title: editedTitle })
+            .then((res) => {
+                console.log(res.data);
+                fetchTasks();
+                setEditingTaskId(null);
+                setEditedTitle("");
+            })
+            .catch((error) => {
+                console.error("Error updating task title:", error);
             });
     }
 
@@ -91,17 +110,34 @@ function ToDo() {
             <ul className="list-group">
                 {tasks.map((task) => (
                     <li className="list-group-item" key={task._id}>
-                        <span
-                            style={{ cursor: "pointer", textDecoration: task.status ? "line-through" : "none" }}
-                            onClick={() => toggleTaskStatus(task._id, task.status)}
-                        >
-                            {task.title} - {formatDate(task.dueDate)}
-                        </span>
+                        {editingTaskId === task._id ? (
+                            <div>
+                                <input
+                                    type="text"
+                                    value={editedTitle}
+                                    onChange={(e) => setEditedTitle(e.target.value)}
+                                />
+                                <button onClick={saveEditedTitle}>Save</button>
+                            </div>
+                        ) : (
+                            <span
+                                style={{ cursor: "pointer", textDecoration: task.status ? "line-through" : "none" }}
+                                onClick={() => toggleTaskStatus(task._id, task.status)}
+                            >
+                                {task.title} - {formatDate(task.dueDate)}
+                            </span>
+                        )}
                         <button
                             className="btn btn-danger btn-sm float-end"
                             onClick={() => deleteTask(task._id)}
                         >
                             Delete
+                        </button>
+                        <button
+                            className="btn btn-primary btn-sm float-end"
+                            onClick={() => handleEditTask(task._id, task.title)}
+                        >
+                            Edit
                         </button>
                     </li>
                 ))}
