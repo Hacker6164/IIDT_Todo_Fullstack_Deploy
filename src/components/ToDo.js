@@ -9,7 +9,7 @@ function ToDo() {
     const [editedTitle, setEditedTitle] = useState("");
 
     const addTask = () => {
-        axios.post("http://localhost:3001/addTask", { title: usertask, dueDate: dueDate, status: false })
+        axios.post("https://iidt-basic-todofullstack.onrender.com/addTask", { title: usertask, dueDate: dueDate, status: false })
             .then((res) => {
                 console.log(res.data);
                 fetchTasks();
@@ -19,7 +19,7 @@ function ToDo() {
     }
 
     const fetchTasks = () => {
-        axios.get("http://localhost:3001/")
+        axios.get("https://iidt-basic-todofullstack.onrender.com/")
             .then((res) => {
                 console.log(res.data);
                 setTasks(res.data);
@@ -30,7 +30,7 @@ function ToDo() {
     }
 
     const deleteTask = (taskId) => {
-        axios.delete(`http://localhost:3001/deleteTask/${taskId}`)
+        axios.delete(`https://iidt-basic-todofullstack.onrender.com/deleteTask/${taskId}`)
             .then((res) => {
                 console.log(res.data);
                 fetchTasks();
@@ -42,7 +42,7 @@ function ToDo() {
 
     const toggleTaskStatus = (taskId, currentStatus) => {
         const newStatus = !currentStatus; // Toggle the status
-        axios.put(`http://localhost:3001/updateTaskStatus/${taskId}`, { status: newStatus })
+        axios.put(`https://iidt-basic-todofullstack.onrender.com/updateTaskStatus/${taskId}`, { status: newStatus })
             .then((res) => {
                 console.log(res.data);
                 fetchTasks();
@@ -58,7 +58,7 @@ function ToDo() {
     }
 
     const saveEditedTitle = () => {
-        axios.put(`http://localhost:3001/updateTaskTitle/${editingTaskId}`, { title: editedTitle })
+        axios.put(`https://iidt-basic-todofullstack.onrender.com/updateTaskTitle/${editingTaskId}`, { title: editedTitle })
             .then((res) => {
                 console.log(res.data);
                 fetchTasks();
